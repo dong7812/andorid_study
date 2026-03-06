@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebView Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        button { padding: 12px 24px; margin: 8px; font-size: 16px; }
+    </style>
+</head>
+<body>
+<h2>WebView JS 통신 테스트</h2>
+
+<!-- JS → Android 호출 -->
+<button onclick="AndroidBridge.showToast('JS에서 토스트!')">
+    Toast 띄우기
+</button>
+
+<button onclick="AndroidBridge.onButtonClick(JSON.stringify({name: '동규', action: 'click'}))">
+    데이터 전송
+</button>
+
+<div id="message"></div>
+
+<script>
+    // Android → JS 호출 (onPageFinished에서 호출됨)
+    function onAndroidReady(message) {
+        document.getElementById('message').innerText = message;
+    }
+</script>
+</body>
+</html>
