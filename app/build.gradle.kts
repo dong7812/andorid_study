@@ -36,16 +36,17 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    // Kotlin 2.0+ 현대적 설정 방식
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-            freeCompilerArgs.add("-Xjsr305=strict")
-        }
-    }
-
     buildFeatures {
         compose = true
+        buildConfig = true  // BuildConfig 클래스 생성 활성화
+    }
+}
+
+// Kotlin 2.0+ 현대적 설정 방식
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        freeCompilerArgs.add("-Xjsr305=strict")
     }
 }
 
@@ -71,6 +72,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")  // HTTP 로깅
     // Coil 3.x (Multiplatform 지원 최신 버전)
     implementation("io.coil-kt.coil3:coil-compose:3.0.4")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.4")
