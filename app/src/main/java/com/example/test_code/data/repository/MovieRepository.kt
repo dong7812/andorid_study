@@ -10,10 +10,20 @@ import javax.inject.Singleton
 class MovieRepository @Inject constructor() {
     private val api = RetrofitClient.movieApi
 
-    suspend fun getPopularMovies(): Result<List<Movie>> {
+    suspend fun getPopularMovies(page: Int = 1): Result<List<Movie>> {
         return try {
-            val response = api.getPopularMovies()
+            val response = api.getPopularMovies(page = page)
             // mapNotNull: toDomain()이 null 반환하는 항목은 제외
+            val movies = response.results?.mapNotNull { it.toDomain() } ?: emptyList()
+            Result.success(movies)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun searchMovies(query: String, page: Int = 1): Result<List<Movie>> {
+        return try {
+            val response = api.searchMovies(query = query, page = page)
             val movies = response.results?.mapNotNull { it.toDomain() } ?: emptyList()
             Result.success(movies)
         } catch (e: Exception) {

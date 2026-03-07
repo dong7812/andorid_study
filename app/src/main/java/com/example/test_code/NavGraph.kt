@@ -66,14 +66,6 @@ fun NavGraph(
         }
     }
 
-    BackHandler(enabled = currentRoute == "movie_list") {
-        if (backPressedOnce) {
-            (context as? ComponentActivity)?.finish()
-        } else {
-            backPressedOnce = true
-        }
-    }
-
     Scaffold(
         bottomBar = {
             NavigationBar {
