@@ -280,8 +280,10 @@ fun WebViewScreen() {
     }
 }
 
-// Android → JS 로 받는 브릿지
+// Android ↔ JS 양방향 브릿지
 class AndroidBridge(private val context: Context) {
+
+    // 1️⃣ 단순 문자열 받기
     @JavascriptInterface
     fun showToast(message: String) {
         Handler(Looper.getMainLooper()).post {
@@ -294,5 +296,34 @@ class AndroidBridge(private val context: Context) {
         Handler(Looper.getMainLooper()).post {
             Toast.makeText(context, "JS에서 받은 데이터: $data", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    // 2️⃣ JSON 받기 (JavaScript → Android)
+    @JavascriptInterface
+    fun receiveJsonFromJS(jsonString: String) {
+        Handler(Looper.getMainLooper()).post {
+            try {
+                // JSON 파싱 예시 (간단한 Map으로)
+                val data = parseSimpleJson(jsonString)
+                Toast.makeText(
+                    context,
+                    "받은 JSON: $data",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                // 또는 Gson으로 파싱:
+                // val gson = Gson()
+                // val movie = gson.fromJson(jsonString, Movie::class.java)
+
+            } catch (e: Exception) {
+                Toast.makeText(context, "JSON 파싱 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // 간단한 JSON 파싱 (예시용 - 실제로는 Gson 사용 권장)
+    private fun parseSimpleJson(json: String): Map<String, Any> {
+        // 매우 간단한 파싱 (실제로는 Gson 사용!)
+        return mapOf("raw" to json)
     }
 }

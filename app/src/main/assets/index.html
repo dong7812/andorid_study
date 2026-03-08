@@ -1,33 +1,189 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebView Test</title>
+    <title>WebView JSON 통신</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        button { padding: 12px 24px; margin: 8px; font-size: 16px; }
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .section {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 8px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 8px 5px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:active { background: #45a049; }
+        #message, #jsonDisplay {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 5px;
+        }
+        .movie-card {
+            background: #fff3e0;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border-left: 4px solid #ff9800;
+        }
     </style>
 </head>
 <body>
-<h2>WebView JS 통신 테스트</h2>
+<h1>🎬 WebView JSON 통신 테스트</h1>
 
-<!-- JS → Android 호출 -->
-<button onclick="AndroidBridge.showToast('JS에서 토스트!')">
-    Toast 띄우기
-</button>
+<!-- 1️⃣ 기본 통신 -->
+<div class="section">
+    <h2>1. 기본 통신</h2>
+    <button onclick="AndroidBridge.showToast('JS에서 토스트!')">
+        Toast 띄우기
+    </button>
+    <button onclick="AndroidBridge.onButtonClick('버튼 클릭!')">
+        데이터 전송
+    </button>
+    <div id="message"></div>
+</div>
 
-<button onclick="AndroidBridge.onButtonClick(JSON.stringify({name: '동규', action: 'click'}))">
-    데이터 전송
-</button>
+<!-- 2️⃣ JavaScript → Android (JSON 전송) -->
+<div class="section">
+    <h2>2. JavaScript → Android (JSON 전송)</h2>
+    <button onclick="sendMovieJson()">영화 정보 전송 (JSON)</button>
+    <button onclick="sendMovieArray()">영화 목록 전송 (JSON Array)</button>
+</div>
 
-<div id="message"></div>
+<!-- 3️⃣ Android → JavaScript (JSON 수신) -->
+<div class="section">
+    <h2>3. Android → JavaScript (JSON 수신)</h2>
+    <p>Android에서 받은 데이터:</p>
+    <div id="jsonDisplay">대기 중...</div>
+</div>
 
 <script>
-    // Android → JS 호출 (onPageFinished에서 호출됨)
-    function onAndroidReady(message) {
-        document.getElementById('message').innerText = message;
+    // =======================================
+    // 1️⃣ JavaScript → Android (JSON 전송)
+    // =======================================
+
+    // 단일 영화 객체 전송
+    function sendMovieJson() {
+        const movie = {
+            id: 1,
+            title: "어벤져스: 엔드게임",
+            overview: "지구 최강 히어로들의 마지막 전투",
+            rating: 8.5,
+            releaseDate: "2019-04-26"
+        };
+
+        // JSON 문자열로 변환
+        const jsonString = JSON.stringify(movie);
+        console.log("전송할 JSON:", jsonString);
+
+        // Android로 전송
+        if (typeof AndroidBridge !== 'undefined') {
+            AndroidBridge.receiveJsonFromJS(jsonString);
+        } else {
+            alert("AndroidBridge를 찾을 수 없습니다");
+        }
     }
+
+    // 여러 영화 배열 전송
+    function sendMovieArray() {
+        const movies = [
+            { id: 1, title: "어벤져스", rating: 8.5 },
+            { id: 2, title: "아이언맨", rating: 7.9 },
+            { id: 3, title: "스파이더맨", rating: 8.2 }
+        ];
+
+        const jsonString = JSON.stringify(movies);
+        console.log("전송할 JSON Array:", jsonString);
+
+        if (typeof AndroidBridge !== 'undefined') {
+            AndroidBridge.receiveJsonFromJS(jsonString);
+        }
+    }
+
+    // =======================================
+    // 2️⃣ Android → JavaScript (JSON 수신)
+    // =======================================
+
+    // Android에서 단일 영화 정보 받기
+    function receiveMovieFromAndroid(jsonString) {
+        console.log("Android에서 받은 JSON:", jsonString);
+
+        try {
+            // JSON 파싱
+            const movie = JSON.parse(jsonString);
+
+            // 화면에 표시
+            document.getElementById('jsonDisplay').innerHTML = `
+                <div class="movie-card">
+                    <h3>${movie.title}</h3>
+                    <p>⭐ 평점: ${movie.rating} / 10</p>
+                    <p>${movie.overview || ''}</p>
+                </div>
+            `;
+
+        } catch (e) {
+            console.error("JSON 파싱 실패:", e);
+            document.getElementById('jsonDisplay').innerHTML =
+                '<p style="color: red;">❌ JSON 파싱 실패: ' + e.message + '</p>';
+        }
+    }
+
+    // Android에서 영화 목록 받기
+    function receiveMoviesFromAndroid(jsonString) {
+        console.log("Android에서 받은 JSON Array:", jsonString);
+
+        try {
+            const movies = JSON.parse(jsonString);
+
+            let html = '<h4>받은 영화 목록:</h4>';
+            movies.forEach(movie => {
+                html += `
+                    <div class="movie-card">
+                        <strong>${movie.title}</strong> - ⭐ ${movie.rating}
+                    </div>
+                `;
+            });
+
+            document.getElementById('jsonDisplay').innerHTML = html;
+
+        } catch (e) {
+            console.error("JSON 파싱 실패:", e);
+        }
+    }
+
+    // =======================================
+    // 3️⃣ Android 준비 완료 이벤트
+    // =======================================
+
+    function onAndroidReady(message) {
+        console.log("Android 준비 완료:", message);
+        document.getElementById('message').innerHTML =
+            '<p style="color: green;">✅ ' + message + '</p>';
+    }
+
+    // 페이지 로드 완료
+    window.onload = function() {
+        console.log("✅ 페이지 로드 완료");
+    };
 </script>
 </body>
 </html>

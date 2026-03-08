@@ -10,10 +10,13 @@ import com.example.test_code.data.paging.MoviePagingSource
 import com.example.test_code.data.paging.SearchPagingSource
 import com.example.test_code.data.repository.MovieRepository
 import com.example.test_code.domain.model.Movie
+import com.example.test_code.presentation.detail.MovieDetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import javax.inject.Inject
@@ -33,7 +36,7 @@ class MovieListViewModel @Inject constructor(
      * - debounce로 300ms 동안 입력 없으면 검색 실행
      * - flatMapLatest로 검색어 바뀔 때마다 새로운 PagingSource 생성
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
+//    @OptIn(ExperimentalCoroutinesApi::class)
     val moviePagingFlow: Flow<PagingData<Movie>> = _searchQuery
         .debounce(300)  // 300ms 디바운스
         .flatMapLatest { query ->

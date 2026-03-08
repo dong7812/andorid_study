@@ -77,6 +77,9 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-compose:3.0.4")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.4")
 
+    // --- [DataStore] ---
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
     // --- [Paging 3] ---
     implementation("androidx.paging:paging-runtime:3.3.5")
     implementation("androidx.paging:paging-compose:3.3.5")
